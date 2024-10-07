@@ -1,1 +1,1 @@
-# ChatApp with Spring and ReactJS
+# Application with Spring and ReactJs

@@ -1,37 +1,37 @@
 plugins {
-	id 'java'
-	id 'org.springframework.boot' version '3.3.4'
-	id 'io.spring.dependency-management' version '1.1.6'
+	id 'io.spring.dependency-management' version '1.0.15.RELEASE'
 }
 
-group = 'com.ahicode'
-version = '0.0.1-SNAPSHOT'
+allprojects {
+	group = 'com.ahitech'
+	version = '1.0-SNAPSHOT'
+}
 
-java {
-	toolchain {
-		languageVersion = JavaLanguageVersion.of(17)
+subprojects {
+	apply plugin: 'java'
+	apply plugin: 'io.spring.dependency-management'
+
+	repositories {
+		mavenCentral()
 	}
-}
 
-configurations {
-	compileOnly {
-		extendsFrom annotationProcessor
+	dependencyManagement {
+		imports {
+			mavenBom "org.springframework.cloud:spring-cloud-dependencies:2022.0.3"
+		}
 	}
-}
 
-repositories {
-	mavenCentral()
-}
+	dependencies {
+		implementation 'org.springframework.boot:spring-boot-starter'
+	}
 
-dependencies {
-	implementation 'org.springframework.boot:spring-boot-starter-web'
-	implementation 'org.springframework.boot:spring-boot-starter-websocket'
-	compileOnly 'org.projectlombok:lombok'
-	annotationProcessor 'org.projectlombok:lombok'
-	testImplementation 'org.springframework.boot:spring-boot-starter-test'
-	testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
-}
+	// Junit dependencies
+	dependencies {
+		testImplementation 'org.junit.jupiter:junit-jupiter'
+		testImplementation platform('org.junit:junit-bom:5.10.0')
+	}
 
-tasks.named('test') {
-	useJUnitPlatform()
+	test {
+		useJUnitPlatform()
+	}
 }
