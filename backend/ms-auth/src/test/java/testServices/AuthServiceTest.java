@@ -1,6 +1,8 @@
+package testServices;
+
 import com.ahitech.services.AuthServiceImpl;
 import com.ahitech.storage.entities.UserEntity;
-import com.ahitech.storage.entities.repositories.UserRepository;
+import com.ahitech.storage.repositories.UserRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
@@ -14,7 +16,7 @@ import java.util.Optional;
 import static org.mockito.Mockito.*;
 import static org.junit.jupiter.api.Assertions.*;
 
-public class AuthServiceImplTest {
+public class AuthServiceTest {
 
     @Mock
     private UserRepository repository;

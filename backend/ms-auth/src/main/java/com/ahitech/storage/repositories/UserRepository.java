@@ -1,4 +1,4 @@
-package com.ahitech.storage.entities.repositories;
+package com.ahitech.storage.repositories;
 
 import com.ahitech.storage.entities.UserEntity;
 import org.springframework.data.jpa.repository.JpaRepository;

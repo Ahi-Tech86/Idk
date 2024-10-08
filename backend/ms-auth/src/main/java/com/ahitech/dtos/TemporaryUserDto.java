@@ -9,8 +9,10 @@ import lombok.NoArgsConstructor;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class UserDto {
+public class TemporaryUserDto {
     private String email;
     private String firstname;
     private String lastname;
+    private String password;
+    private String activationCode;
 }
