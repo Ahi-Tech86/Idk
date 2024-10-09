@@ -1,5 +1,6 @@
 package com.ahitech.services;
 
+import com.ahitech.services.interfaces.EmailService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.mail.SimpleMailMessage;

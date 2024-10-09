@@ -1,4 +1,4 @@
-package com.ahitech.services;
+package com.ahitech.services.interfaces;
 
 import com.ahitech.dtos.ActivateUserRequest;
 import com.ahitech.dtos.SignInRequest;

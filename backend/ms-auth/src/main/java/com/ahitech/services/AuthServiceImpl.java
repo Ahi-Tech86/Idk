@@ -5,6 +5,7 @@ import com.ahitech.exception.AppException;
 import com.ahitech.factories.TemporaryUserDtoFactory;
 import com.ahitech.factories.UserDtoFactory;
 import com.ahitech.factories.UserEntityFactory;
+import com.ahitech.services.interfaces.AuthService;
 import com.ahitech.storage.entities.UserEntity;
 import com.ahitech.storage.repositories.UserRepository;
 import lombok.RequiredArgsConstructor;
