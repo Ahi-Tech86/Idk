@@ -8,6 +8,9 @@ import com.ahitech.storage.entities.RefreshTokenEntity;
 import com.ahitech.storage.entities.UserEntity;
 import com.ahitech.storage.repositories.TokenRepository;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
@@ -15,6 +18,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Date;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class TokenServiceImpl implements TokenService {
@@ -50,9 +54,13 @@ public class TokenServiceImpl implements TokenService {
     @Override
     @Transactional
     public String getTokenByUserEmail(String email) {
+        Logger logger = LoggerFactory.getLogger(getClass());
+
         try {
             RefreshTokenEntity refreshTokenEntity = repository.findByEmail(email).orElseThrow(
-                    () -> new AppException("Token for user with email {" + email + "} doesn't exists", HttpStatus.NOT_FOUND)
+                    () -> new AppException(
+                            String.format("Token for user with email %s doesn't exists", email), HttpStatus.NOT_FOUND
+                    )
             );
 
             String encryptedToken = refreshTokenEntity.getToken();
@@ -69,13 +77,17 @@ public class TokenServiceImpl implements TokenService {
                 refreshTokenEntity.setCreateAt(new Date(System.currentTimeMillis()));
                 refreshTokenEntity.setExpiresAt(new Date(System.currentTimeMillis() + refreshTokenExpirationTime));
                 repository.saveAndFlush(refreshTokenEntity);
+                log.info("Refresh token for user {} was successfully updated", email);
+
                 return newRefreshToken;
             }
 
             return decryptedToken;
         } catch (AppException exception) {
+            logger.error("Error when receiving a token for a user with email {}: {}", email, exception.getMessage());
             throw exception;
         } catch (Exception exception) {
+            logger.error("An unexpected error occurred {}", exception.getMessage());
             throw new AppException("An unexpected error occurred", HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }

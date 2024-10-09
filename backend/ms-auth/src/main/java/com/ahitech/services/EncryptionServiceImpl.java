@@ -3,6 +3,7 @@ package com.ahitech.services;
 import com.ahitech.exception.AppException;
 import com.ahitech.services.interfaces.EncryptionService;
 import jakarta.annotation.PostConstruct;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
@@ -12,6 +13,7 @@ import javax.crypto.spec.IvParameterSpec;
 import javax.crypto.spec.SecretKeySpec;
 import java.util.Base64;
 
+@Slf4j
 @Service
 public class EncryptionServiceImpl implements EncryptionService {
 
@@ -42,6 +44,7 @@ public class EncryptionServiceImpl implements EncryptionService {
             byte[] encryptedBytes = cipher.doFinal(data.getBytes());
             return Base64.getEncoder().encodeToString(encryptedBytes);
         } catch (Exception exception) {
+            log.error("Attempt to encrypt data failed, error: {}", exception.getMessage());
             throw new AppException("An error occurred while encrypting data", HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
@@ -55,6 +58,7 @@ public class EncryptionServiceImpl implements EncryptionService {
             byte[] decryptedBytes = cipher.doFinal(decodedBytes);
             return new String(decryptedBytes);
         } catch (Exception exception) {
+            log.error("Attempt to decrypt data failed, error: {}", exception.getMessage());
             throw new AppException("An error occurred while decrypting data", HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }

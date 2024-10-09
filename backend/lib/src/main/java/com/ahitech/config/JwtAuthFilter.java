@@ -8,6 +8,7 @@ import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -16,6 +17,7 @@ import org.springframework.web.util.WebUtils;
 
 import java.io.IOException;
 
+@Slf4j
 @RequiredArgsConstructor
 public class JwtAuthFilter extends OncePerRequestFilter {
 
@@ -50,13 +52,15 @@ public class JwtAuthFilter extends OncePerRequestFilter {
             String refreshToken
     ) {
         if (isTokenInvalid(refreshToken)) {
+            log.error("An attempt was made to gain access with an invalid refresh token or missing refresh token");
             throw new AppException("The refresh token was lost or is not valid", HttpStatus.UNAUTHORIZED);
         }
 
         if (accessToken == null || provider.isAccessTokenExpired(accessToken)) {
             handleRefreshToken(response, refreshToken);
         } else {
-            if (!provider.isAccessTokenExpired(accessToken)) {
+            if (!provider.isAccessTokenValid(accessToken)) {
+                log.error("An attempt was made to gain access with an invalid access token");
                 throw new AppException("The access token is not valid", HttpStatus.UNAUTHORIZED);
             }
             authenticateUser(accessToken);
@@ -68,6 +72,7 @@ public class JwtAuthFilter extends OncePerRequestFilter {
             String token
     ) {
         if (provider.isRefreshTokenExpired(token)) {
+            log.error("An attempt was made to gain access with an expired refresh token");
             throw new AppException("The refresh token is expired, please authorize again", HttpStatus.UNAUTHORIZED);
         }
 
@@ -76,6 +81,8 @@ public class JwtAuthFilter extends OncePerRequestFilter {
         String email = provider.extractEmail(token);
 
         String newAccessToken = provider.generateAccessToken(userId, email, role);
+        log.info("Generated new access token for a user with email {}", email);
+
         updateTokenCookie(response, newAccessToken);
         authenticateUser(newAccessToken);
     }
@@ -88,8 +95,10 @@ public class JwtAuthFilter extends OncePerRequestFilter {
         try {
             SecurityContextHolder.getContext()
                     .setAuthentication(provider.authenticatedAccessValidation(token));
+            log.info("Successful authentication occurred");
         } catch (RuntimeException exception) {
             SecurityContextHolder.clearContext();
+            log.error("An error occurred during user authentication");
             throw new AppException("Authentication failed", HttpStatus.UNAUTHORIZED);
         }
     }

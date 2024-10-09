@@ -1,6 +1,7 @@
 package com.ahitech.services;
 
 import com.ahitech.dtos.*;
+import com.ahitech.enums.AppRole;
 import com.ahitech.exception.AppException;
 import com.ahitech.factories.TemporaryUserDtoFactory;
 import com.ahitech.factories.UserDtoFactory;
@@ -16,6 +17,8 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Optional;
 import java.util.Random;
 import java.util.concurrent.TimeUnit;
@@ -26,7 +29,9 @@ import java.util.regex.Pattern;
 @RequiredArgsConstructor
 public class AuthServiceImpl implements AuthService {
 
+    private final JwtServiceImpl jwtService;
     private final UserRepository repository;
+    private final TokenServiceImpl tokenService;
     private final EmailServiceImpl emailService;
     private final UserDtoFactory userDtoFactory;
     private final PasswordEncoder passwordEncoder;
@@ -88,12 +93,50 @@ public class AuthServiceImpl implements AuthService {
         UserEntity savedUser = repository.saveAndFlush(user);
         log.info("User with email {} was successfully saved", email);
 
+        tokenService.createAndSaveToken(user);
+        log.info("Refresh token for {} user was successfully saved", email);
+
         return userDtoFactory.makeUserDto(savedUser);
     }
 
     @Override
-    public UserDto login(SignInRequest signInRequest) {
-        return null;
+    public List<Object> login(SignInRequest signInRequest) {
+        // create response list
+        List<Object> response = new ArrayList<>();
+        String email = signInRequest.getEmail();
+
+        // getting entity from db if user exists
+        UserEntity user = isUserExistsByEmail(email);
+
+        // matches password from request and password from db
+        if (passwordEncoder.matches(signInRequest.getPassword(), user.getPassword())) {
+            Long userId = user.getId();
+            AppRole userRole = user.getRole();
+            UserDto userDto = userDtoFactory.makeUserDto(user);
+
+            String accessToken = jwtService.generateAccessToken(userId, email, userRole);
+            String refreshToken = jwtService.generateRefreshToken(userId, email, userRole);
+
+            response.add(userDto);
+            response.add(accessToken);
+            response.add(refreshToken);
+
+            log.info("Successful login to {} account", email);
+            return response;
+        } else {
+            log.error("Attempt to log with incorrect password to {} account", email);
+            throw new AppException(
+                    String.format("Incorrect password for user with email %s", email), HttpStatus.UNAUTHORIZED
+            );
+        }
+    }
+
+    private String generateActivationCode() {
+        Random random = new Random();
+
+        int number = 1 + random.nextInt(1000000);
+
+        return String.format("%6d", number);
     }
 
     private boolean isEmailValid(String email) {
@@ -108,6 +151,7 @@ public class AuthServiceImpl implements AuthService {
             return false;
         }
 
+
         return pattern.matcher(email).matches();
     }
 
@@ -121,11 +165,14 @@ public class AuthServiceImpl implements AuthService {
         }
     }
 
-    private String generateActivationCode() {
-        Random random = new Random();
+    private UserEntity isUserExistsByEmail(String email) {
+        Optional<UserEntity> optionalUser = repository.findByEmail(email);
 
-        int number = 1 + random.nextInt(1000000);
-
-        return String.format("%6d", number);
+        if (optionalUser.isPresent()) {
+            return optionalUser.get();
+        } else {
+            log.error("Attempt to log into an account with non-existent email {}", email);
+            throw new AppException("User with email {" + email + "} doesn't exists", HttpStatus.NOT_FOUND);
+        }
     }
 }
