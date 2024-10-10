@@ -44,22 +44,45 @@ public class JwtServiceImpl implements JwtService {
     }
 
     @Override
-    public Long extractUserId(String token) {
+    public Long extractUserIdFromAccessToken(String token) {
         Claims claims = extractAllClaims(token, accessSignKey);
 
         return claims.get("id", Long.class);
     }
 
     @Override
-    public AppRole extractRole(String token) {
-        Claims claims = extractAllClaims(token, accessSignKey);
+    public Long extractUserIdFromRefreshToken(String token) {
+        Claims claims = extractAllClaims(token, refreshSignKey);
 
-        return claims.get("role", AppRole.class);
+        return claims.get("id", Long.class);
     }
 
     @Override
-    public String extractEmail(String token) {
+    public AppRole extractRoleFromAccessToken(String token) {
         Claims claims = extractAllClaims(token, accessSignKey);
+        String role = claims.get("role", String.class);
+
+        return AppRole.valueOf(role);
+    }
+
+    @Override
+    public AppRole extractRoleFromRefreshToken(String token) {
+        Claims claims = extractAllClaims(token, refreshSignKey);
+        String role = claims.get("role", String.class);
+
+        return AppRole.valueOf(role);
+    }
+
+    @Override
+    public String extractEmailFromAccessToken(String token) {
+        Claims claims = extractAllClaims(token, accessSignKey);
+
+        return claims.getSubject();
+    }
+
+    @Override
+    public String extractEmailFromRefreshToken(String token) {
+        Claims claims = extractAllClaims(token, refreshSignKey);
 
         return claims.getSubject();
     }
@@ -158,8 +181,8 @@ public class JwtServiceImpl implements JwtService {
 
     private String generateToken(String email, Long userId, AppRole role, Key signKey, Long expirationTime) {
         Map<String, Object> claims = new HashMap<>();
-        claims.put("role", role);
         claims.put("id", userId);
+        claims.put("role", role.toString());
 
         return Jwts.builder()
                 .setClaims(claims)

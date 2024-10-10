@@ -13,15 +13,15 @@ public class UserAuthenticationProvider {
     private final JwtServiceImpl service;
 
     public Long extractUserId(String token) {
-        return service.extractUserId(token);
+        return service.extractUserIdFromRefreshToken(token);
     }
 
     public AppRole extractRole(String token) {
-        return service.extractRole(token);
+        return service.extractRoleFromRefreshToken(token);
     }
 
     public String extractEmail(String token) {
-        return service.extractEmail(token);
+        return service.extractEmailFromRefreshToken(token);
     }
 
     public boolean isAccessTokenValid(String token) {

@@ -6,9 +6,12 @@ import org.springframework.security.core.Authentication;
 import java.util.Date;
 
 public interface JwtService {
-    Long extractUserId(String token);
-    AppRole extractRole(String token);
-    String extractEmail(String token);
+    Long extractUserIdFromAccessToken(String token);
+    Long extractUserIdFromRefreshToken(String token);
+    AppRole extractRoleFromAccessToken(String token);
+    AppRole extractRoleFromRefreshToken(String token);
+    String extractEmailFromAccessToken(String token);
+    String extractEmailFromRefreshToken(String token);
     boolean isAccessTokenValid(String token);
     boolean isRefreshTokenValid(String token);
     boolean isAccessTokenExpired(String token);

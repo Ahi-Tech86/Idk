@@ -68,9 +68,9 @@ public class TokenServiceImpl implements TokenService {
 
             if (jwtService.isRefreshTokenExpired(decryptedToken)) {
                 String newRefreshToken = jwtService.generateRefreshToken(
-                        jwtService.extractUserId(decryptedToken),
+                        jwtService.extractUserIdFromAccessToken(decryptedToken),
                         email,
-                        jwtService.extractRole(decryptedToken)
+                        jwtService.extractRoleFromAccessToken(decryptedToken)
                 );
                 String encryptedNewToken = encryptionService.encrypt(newRefreshToken);
                 refreshTokenEntity.setToken(encryptedNewToken);
