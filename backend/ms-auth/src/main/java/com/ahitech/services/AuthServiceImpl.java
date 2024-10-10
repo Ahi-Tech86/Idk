@@ -57,7 +57,7 @@ public class AuthServiceImpl implements AuthService {
         // saving information about user temporary in redis
         TemporaryUserDto temporaryUserDto = temporaryUserDtoFactory.makeTemporaryUserDto(signUpRequest, activationCode);
         redisTemplate.opsForValue().set(email, temporaryUserDto, 20, TimeUnit.MINUTES);
-        log.error("User information with email {} is temporarily saved", email);
+        log.info("User information with email {} is temporarily saved", email);
 
         try {
             emailService.sendActivationCodeToEmail(email, activationCode);

@@ -110,7 +110,7 @@ public class JwtServiceImpl implements JwtService {
     }
 
     private Key getRefreshSignKey() {
-        byte[] keyBytes = Decoders.BASE64URL.decode(refreshTokenSecretKey);
+        byte[] keyBytes = Decoders.BASE64.decode(refreshTokenSecretKey);
         return Keys.hmacShaKeyFor(keyBytes);
     }
 
@@ -166,7 +166,7 @@ public class JwtServiceImpl implements JwtService {
                 .setSubject(email)
                 .setIssuedAt(new Date(System.currentTimeMillis()))
                 .setExpiration(new Date(System.currentTimeMillis() + expirationTime))
-                .signWith(SignatureAlgorithm.HS256 ,signKey)
+                .signWith(SignatureAlgorithm.HS256, signKey)
                 .compact();
     }
 }

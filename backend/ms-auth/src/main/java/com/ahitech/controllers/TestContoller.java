@@ -20,12 +20,17 @@ public class TestContoller {
 
     @GetMapping("/testValid")
     public Boolean getValid(@RequestParam String token) {
-        return service.isAccessTokenValid(token);
+        return service.isRefreshTokenValid(token);
     }
 
     @GetMapping("/refresh")
     public Boolean getRefresh(@RequestParam String email, @RequestParam Long id) {
         String token = service.generateRefreshToken(id, email, AppRole.USER);
         return service.isRefreshTokenValid(token);
+    }
+
+    @GetMapping("/aboba")
+    public String test() {
+        return "Aboba";
     }
 }

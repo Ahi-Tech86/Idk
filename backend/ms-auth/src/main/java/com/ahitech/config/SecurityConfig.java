@@ -35,6 +35,7 @@ public class SecurityConfig {
                 )
                 .authorizeHttpRequests((requests) -> requests
                         .requestMatchers(HttpMethod.GET, "/testToken", "/testValid", "/refresh").permitAll()
+                        .requestMatchers(HttpMethod.POST, "/api/v1/auth/register", "/api/v1/auth/activate", "/api/v1/auth/login").permitAll()
                         .anyRequest().authenticated()
                 );
 
