@@ -63,6 +63,11 @@ public class JwtAuthFilter extends OncePerRequestFilter {
         }
 
         if (accessToken == null || provider.isAccessTokenExpired(accessToken)) {
+            if (provider.isRefreshTokenExpired(refreshToken)) {
+                log.error("An attempt was made to gain access with an expired refresh token");
+                throw new AppException("The refresh token is expired, please authorize again", HttpStatus.UNAUTHORIZED);
+            }
+
             handleRefreshToken(response, refreshToken);
         } else {
             if (!provider.isAccessTokenValid(accessToken)) {
@@ -77,11 +82,6 @@ public class JwtAuthFilter extends OncePerRequestFilter {
             HttpServletResponse response,
             String token
     ) {
-        if (provider.isRefreshTokenExpired(token)) {
-            log.error("An attempt was made to gain access with an expired refresh token");
-            throw new AppException("The refresh token is expired, please authorize again", HttpStatus.UNAUTHORIZED);
-        }
-
         Long userId = provider.extractUserId(token);
         AppRole role = provider.extractRole(token);
         String email = provider.extractEmail(token);

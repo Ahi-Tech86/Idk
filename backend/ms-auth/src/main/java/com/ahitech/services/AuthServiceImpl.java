@@ -60,7 +60,7 @@ public class AuthServiceImpl implements AuthService {
         log.info("User information with email {} is temporarily saved", email);
 
         try {
-            emailService.sendActivationCodeToEmail(email, activationCode);
+            emailService.sendActivationCodeToEmail(email, activationCode, "Account activation");
             log.info("Message with activation code was send to email {}", email);
         } catch (RuntimeException exception) {
             log.error("Attempt to send message was unsuccessful", exception);
@@ -172,7 +172,7 @@ public class AuthServiceImpl implements AuthService {
             return optionalUser.get();
         } else {
             log.error("Attempt to log into an account with non-existent email {}", email);
-            throw new AppException("User with email {" + email + "} doesn't exists", HttpStatus.NOT_FOUND);
+            throw new AppException(String.format("User with email %s doesn't exists", email), HttpStatus.NOT_FOUND);
         }
     }
 }

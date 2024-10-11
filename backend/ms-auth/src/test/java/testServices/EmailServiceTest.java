@@ -31,13 +31,14 @@ public class EmailServiceTest {
     public void shouldSendActivationCodeToEmail() {
         String email = "test@mail.com";
         String activationCode = "123456";
+        String titleMessage = "Account activation";
 
-        service.sendActivationCodeToEmail(email, activationCode);
+        service.sendActivationCodeToEmail(email, activationCode, titleMessage);
 
         SimpleMailMessage expectedMessage = new SimpleMailMessage();
         expectedMessage.setFrom(fromEmail);
         expectedMessage.setTo(email);
-        expectedMessage.setSubject("Account activation");
+        expectedMessage.setSubject(titleMessage);
         expectedMessage.setText("Yours activation code: " + activationCode);
 
         verify(javaMailSender, times(1)).send(expectedMessage);

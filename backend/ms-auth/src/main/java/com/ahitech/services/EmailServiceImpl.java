@@ -17,11 +17,11 @@ public class EmailServiceImpl implements EmailService {
     private String username;
 
     @Override
-    public void sendActivationCodeToEmail(String to, String activationCode) {
+    public void sendActivationCodeToEmail(String to, String activationCode, String titleMessage) {
         SimpleMailMessage message = new SimpleMailMessage();
         message.setFrom(username);
         message.setTo(to);
-        message.setSubject("Account activation");
+        message.setSubject(titleMessage);
         message.setText("Yours activation code: " + activationCode);
         javaMailSender.send(message);
     }

@@ -8,10 +8,7 @@ import com.ahitech.services.AuthServiceImpl;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
@@ -43,7 +40,7 @@ public class AuthController {
         Cookie accessTokenCookie = new Cookie("accessToken", accessToken);
         accessTokenCookie.setHttpOnly(true);
         accessTokenCookie.setPath("/");
-        accessTokenCookie.setMaxAge(24 * 60 * 60);
+        accessTokenCookie.setMaxAge(60 * 60);
 
         Cookie refreshTokenCookie = new Cookie("refreshToken", refreshToken);
         refreshTokenCookie.setHttpOnly(true);
@@ -55,4 +52,21 @@ public class AuthController {
 
         return userDto;
     }
+
+    @PostMapping("/logout")
+    public String logout(HttpServletResponse response) {
+        deleteCookie("accessToken", response);
+        deleteCookie("refreshToken", response);
+
+        return "Successfully logged out";
+    }
+
+    private void deleteCookie(String cookieName, HttpServletResponse response) {
+        Cookie cookie = new Cookie(cookieName, null);
+        cookie.setMaxAge(0);
+        cookie.setPath("/");
+        response.addCookie(cookie);
+    }
+
+    //todo: limits trying to log in, api docs
 }
