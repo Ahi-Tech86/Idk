@@ -4,4 +4,5 @@ include 'ms-eureka'
 include 'ms-gateway'
 include 'ms-auth'
 include 'lib'
+include 'ms-account'
 
