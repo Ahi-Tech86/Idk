@@ -8,6 +8,8 @@ import com.ahitech.services.AuthServiceImpl;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -20,17 +22,17 @@ public class AuthController {
     private final AuthServiceImpl authService;
 
     @PostMapping("/register")
-    public String registerUser(@RequestBody SignUpRequest signUpRequest) {
-        return authService.register(signUpRequest);
+    public ResponseEntity<String> registerUser(@RequestBody SignUpRequest signUpRequest) {
+        return ResponseEntity.ok(authService.register(signUpRequest));
     }
 
     @PostMapping("/activate")
-    public UserDto activateUser(@RequestBody ActivateUserRequest activateUserRequest) {
-        return authService.activate(activateUserRequest);
+    public ResponseEntity<UserDto> activateUser(@RequestBody ActivateUserRequest activateUserRequest) {
+        return ResponseEntity.status(HttpStatus.CREATED).body(authService.activate(activateUserRequest));
     }
 
     @PostMapping("/login")
-    public UserDto authenticateUser(HttpServletResponse response, @RequestBody SignInRequest signInRequest) {
+    public ResponseEntity<UserDto> authenticateUser(HttpServletResponse response, @RequestBody SignInRequest signInRequest) {
         List<Object> authenticatedUser = authService.login(signInRequest);
 
         UserDto userDto = (UserDto) authenticatedUser.get(0);
@@ -50,15 +52,15 @@ public class AuthController {
         response.addCookie(accessTokenCookie);
         response.addCookie(refreshTokenCookie);
 
-        return userDto;
+        return ResponseEntity.ok(userDto);
     }
 
     @PostMapping("/logout")
-    public String logout(HttpServletResponse response) {
+    public ResponseEntity<Void> logout(HttpServletResponse response) {
         deleteCookie("accessToken", response);
         deleteCookie("refreshToken", response);
 
-        return "Successfully logged out";
+        return ResponseEntity.noContent().build();
     }
 
     private void deleteCookie(String cookieName, HttpServletResponse response) {
