@@ -10,6 +10,7 @@ public class UserDtoFactory {
     public UserDto makeUserDto(UserEntity entity) {
         return UserDto.builder()
                 .email(entity.getEmail())
+                .nickname(entity.getNickname())
                 .firstname(entity.getFirstname())
                 .lastname(entity.getLastname())
                 .build();

@@ -12,6 +12,7 @@ public class UserEntityFactory {
     public UserEntity makeUserEntity(TemporaryUserDto userDto) {
         return UserEntity.builder()
                 .email(userDto.getEmail())
+                .nickname(userDto.getNickname())
                 .firstname(userDto.getFirstname())
                 .lastname(userDto.getLastname())
                 .role(USER)

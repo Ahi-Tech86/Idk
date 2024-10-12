@@ -13,6 +13,7 @@ public class TemporaryUserDto {
     private String email;
     private String firstname;
     private String lastname;
+    private String nickname;
     private String password;
     private String activationCode;
 }

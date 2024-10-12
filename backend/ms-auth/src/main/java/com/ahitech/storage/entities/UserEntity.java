@@ -30,6 +30,9 @@ public class UserEntity implements UserDetails {
 
     private String password;
 
+    @Column(unique = true)
+    private String nickname;
+
     @Enumerated(EnumType.STRING)
     private AppRole role;
 

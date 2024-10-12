@@ -11,6 +11,7 @@ import com.ahitech.storage.entities.UserEntity;
 import com.ahitech.storage.repositories.UserRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.hibernate.cache.internal.NaturalIdCacheKey;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -43,6 +44,7 @@ public class AuthServiceImpl implements AuthService {
     @Override
     public String register(SignUpRequest signUpRequest) {
         String email = signUpRequest.getEmail();
+        String nickname = signUpRequest.getNickname();
 
         // checking email on pattern
         if (!isEmailValid(email)) {
@@ -51,6 +53,7 @@ public class AuthServiceImpl implements AuthService {
         }
 
         isEmailUniqueness(email);
+        isNicknameUniqueness(nickname);
 
         String activationCode = generateActivationCode();
 
@@ -107,6 +110,7 @@ public class AuthServiceImpl implements AuthService {
 
         // getting entity from db if user exists
         UserEntity user = isUserExistsByEmail(email);
+        String nickname = user.getNickname();
 
         // matches password from request and password from db
         if (passwordEncoder.matches(signInRequest.getPassword(), user.getPassword())) {
@@ -114,8 +118,8 @@ public class AuthServiceImpl implements AuthService {
             AppRole userRole = user.getRole();
             UserDto userDto = userDtoFactory.makeUserDto(user);
 
-            String accessToken = jwtService.generateAccessToken(userId, email, userRole);
-            String refreshToken = jwtService.generateRefreshToken(userId, email, userRole);
+            String accessToken = jwtService.generateAccessToken(userId, nickname, userRole);
+            String refreshToken = jwtService.generateRefreshToken(userId, nickname, userRole);
 
             response.add(userDto);
             response.add(accessToken);
@@ -156,12 +160,20 @@ public class AuthServiceImpl implements AuthService {
     }
 
     private void isEmailUniqueness(String email) {
-
         Optional<UserEntity> optionalUser = repository.findByEmail(email);
 
         if (optionalUser.isPresent()) {
             log.error("Attempt to register with an existing email {}", email);
             throw new AppException(String.format("User with email %s is already exists", email), HttpStatus.BAD_REQUEST);
+        }
+    }
+
+    private void isNicknameUniqueness(String nickname) {
+        Optional<UserEntity> optionalUser = repository.findByNickname(nickname);
+
+        if (optionalUser.isPresent()) {
+            log.error("Attempt to with an existing nickname {}", nickname);
+            throw new AppException(String.format("User with nickname %s is already exists", nickname), HttpStatus.BAD_REQUEST);
         }
     }
 

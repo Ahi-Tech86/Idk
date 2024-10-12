@@ -11,6 +11,7 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 public class SignUpRequest {
     private String email;
+    private String nickname;
     private String firstname;
     private String lastname;
     private String password;
