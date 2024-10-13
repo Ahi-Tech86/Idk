@@ -9,6 +9,7 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.jetbrains.annotations.NotNull;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -16,23 +17,43 @@ import org.springframework.web.filter.OncePerRequestFilter;
 import org.springframework.web.util.WebUtils;
 
 import java.io.IOException;
+import java.util.Set;
 
 @Slf4j
 @RequiredArgsConstructor
 public class JwtAuthFilter extends OncePerRequestFilter {
 
     private final int tokenMaxAge = 3600;
-
     private final UserAuthenticationProvider provider;
+
+    private static final Set<String> ALLOWED_PATHS = Set.of(
+            "/api/v1/auth/login",
+            "/api/v1/auth/activate",
+            "/api/v1/auth/register",
+            "/webjars",
+            "/favicon.ico",
+            "/v3/api-docs",
+            "/swagger-resources",
+            "/swagger-ui/index.css",
+            "/swagger-ui/index.html",
+            "/swagger-ui/swagger-ui.css",
+            "/v3/api-docs/swagger-config",
+            "/swagger-ui/favicon-32x32.png",
+            "/swagger-ui/swagger-ui-bundle.js",
+            "/swagger-ui/swagger-initializer.js",
+            "/swagger-ui/swagger-ui-standalone-preset.js"
+    );
 
     @Override
     protected void doFilterInternal(
             HttpServletRequest request,
-            HttpServletResponse response,
-            FilterChain filterChain
+            @NotNull HttpServletResponse response,
+            @NotNull FilterChain filterChain
     ) throws ServletException, IOException {
+        // getting request path
         String path = request.getRequestURI();
-        if (path.equals("/api/v1/auth/register") || path.equals("/api/v1/auth/login") || path.equals("/api/v1/auth/activate")) {
+
+        if (ALLOWED_PATHS.contains(path)) {
             filterChain.doFilter(request, response);
             return;
         }

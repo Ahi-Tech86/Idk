@@ -5,6 +5,8 @@ import com.ahitech.dtos.SignInRequest;
 import com.ahitech.dtos.SignUpRequest;
 import com.ahitech.dtos.ActivateUserRequest;
 import com.ahitech.services.AuthServiceImpl;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
@@ -22,16 +24,42 @@ public class AuthController {
     private final AuthServiceImpl authService;
 
     @PostMapping("/register")
+    @Operation(
+            summary = "Sending activation code on email",
+            description = "Sending data for register and saving them in db, then generate activation code and send on email",
+            responses = {
+                    @ApiResponse(responseCode = "200", description = "Activation code was send on email"),
+                    @ApiResponse(responseCode = "400", description = "Invalid request data"),
+                    @ApiResponse(responseCode = "500", description = "An error occurred while sending message an email")
+            }
+    )
     public ResponseEntity<String> registerUser(@RequestBody SignUpRequest signUpRequest) {
         return ResponseEntity.ok(authService.register(signUpRequest));
     }
 
     @PostMapping("/activate")
+    @Operation(
+            summary = "Confirm and register user",
+            description = "Receiving activation code for register, register user and create account",
+            responses = {
+                    @ApiResponse(responseCode = "201", description = "Successful registration"),
+                    @ApiResponse(responseCode = "401", description = "Activation code doesn't match with generated")
+            }
+    )
     public ResponseEntity<UserDto> activateUser(@RequestBody ActivateUserRequest activateUserRequest) {
         return ResponseEntity.status(HttpStatus.CREATED).body(authService.activate(activateUserRequest));
     }
 
     @PostMapping("/login")
+    @Operation(
+            summary = "Login operation",
+            description = "Login operation and JWT tokens saving",
+            responses = {
+                    @ApiResponse(responseCode = "200", description = "Successful login operation"),
+                    @ApiResponse(responseCode = "401", description = "Password doesn't match with user password"),
+                    @ApiResponse(responseCode = "404", description = "User with email doesn't exists")
+            }
+    )
     public ResponseEntity<UserDto> authenticateUser(HttpServletResponse response, @RequestBody SignInRequest signInRequest) {
         List<Object> authenticatedUser = authService.login(signInRequest);
 
@@ -56,6 +84,13 @@ public class AuthController {
     }
 
     @PostMapping("/logout")
+    @Operation(
+            summary = "Logout operation",
+            description = "Logout and clear all cookies",
+            responses = {
+                    @ApiResponse(responseCode = "204", description = "Successful logout")
+            }
+    )
     public ResponseEntity<Void> logout(HttpServletResponse response) {
         deleteCookie("accessToken", response);
         deleteCookie("refreshToken", response);
@@ -70,5 +105,5 @@ public class AuthController {
         response.addCookie(cookie);
     }
 
-    //todo: limits trying to log in, api docs
+    //todo: limits trying to log in
 }

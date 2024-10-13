@@ -1,5 +1,8 @@
 package com.ahitech.storage.enums;
 
+import lombok.Getter;
+
+@Getter
 public enum Country {
     AFGHANISTAN("Afghanistan"),
     ALBANIA("Albania"),
@@ -199,9 +202,5 @@ public enum Country {
 
     Country(String name) {
         this.name = name;
-    }
-
-    public String getName() {
-        return name;
     }
 }
