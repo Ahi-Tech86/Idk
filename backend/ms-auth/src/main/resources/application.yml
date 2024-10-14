@@ -27,6 +27,12 @@ spring:
         format_sql: true
     database-platform: org.hibernate.dialect.PostgreSQLDialect
 
+  rabbitmq:
+    port: 5672
+    host: localhost
+    username: ${RABBITMQ_USER}
+    password: ${RABBITMQ_PASS}
+
 application:
   security:
     jwt:

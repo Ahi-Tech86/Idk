@@ -76,7 +76,9 @@ public class AuthServiceImpl implements AuthService {
 
     @Override
     @Transactional
-    public UserDto activate(ActivateUserRequest activateUserRequest) {
+    public List<Object> activate(ActivateUserRequest activateUserRequest) {
+        List<Object> response = new ArrayList<>();
+
         String email = activateUserRequest.getEmail();
         String activationCode = activateUserRequest.getActivationCode();
 
@@ -99,7 +101,10 @@ public class AuthServiceImpl implements AuthService {
         tokenService.createAndSaveToken(user);
         log.info("Refresh token for {} user was successfully saved", email);
 
-        return userDtoFactory.makeUserDto(savedUser);
+        response.add(userDtoFactory.makeUserDto(savedUser));
+        response.add(user.getId());
+
+        return response;
     }
 
     @Override

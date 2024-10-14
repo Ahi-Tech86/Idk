@@ -5,6 +5,7 @@ import com.ahitech.dtos.SignInRequest;
 import com.ahitech.dtos.SignUpRequest;
 import com.ahitech.dtos.ActivateUserRequest;
 import com.ahitech.services.AuthServiceImpl;
+import com.ahitech.services.interfaces.UserAccountMessagingService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import jakarta.servlet.http.Cookie;
@@ -22,6 +23,7 @@ import java.util.List;
 public class AuthController {
 
     private final AuthServiceImpl authService;
+    private final UserAccountMessagingService messagingService;
 
     @PostMapping("/register")
     @Operation(
@@ -43,11 +45,18 @@ public class AuthController {
             description = "Receiving activation code for register, register user and create account",
             responses = {
                     @ApiResponse(responseCode = "201", description = "Successful registration"),
-                    @ApiResponse(responseCode = "401", description = "Activation code doesn't match with generated")
+                    @ApiResponse(responseCode = "401", description = "Activation code doesn't match with generated"),
+                    @ApiResponse(responseCode = "500", description = "Error while serializing message")
             }
     )
     public ResponseEntity<UserDto> activateUser(@RequestBody ActivateUserRequest activateUserRequest) {
-        return ResponseEntity.status(HttpStatus.CREATED).body(authService.activate(activateUserRequest));
+        List<Object> responseBody = authService.activate(activateUserRequest);
+        UserDto userDto = (UserDto) responseBody.get(0);
+        Long userId = (Long) responseBody.get(1);
+
+        messagingService.sendUserData(userDto, userId);
+
+        return ResponseEntity.status(HttpStatus.CREATED).body(userDto);
     }
 
     @PostMapping("/login")

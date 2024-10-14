@@ -9,7 +9,8 @@ import lombok.*;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-@Table(name = "subs",
+@Table(
+        name = "subs",
         indexes = {
             @Index(name = "idx_follower_id", columnList = "follower_id"),
             @Index(name = "idx_followed_id", columnList = "followed_id")
@@ -20,11 +21,17 @@ public class SubscriptionEntity {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @ManyToOne
-    @Column(name = "follower_id", nullable = false)
-    private Long followerId;
+    @ManyToOne(optional = false)
+    @JoinColumn(
+            name = "follower_id", nullable = false,
+            referencedColumnName = "id", foreignKey = @ForeignKey(name = "FK_follower")
+    )
+    private AccountEntity follower;
 
-    @ManyToOne
-    @Column(name = "followed_id", nullable = false)
-    private Long followedId;
+    @ManyToOne(optional = false)
+    @JoinColumn(
+            name = "followed_id", nullable = false,
+            referencedColumnName = "id", foreignKey = @ForeignKey(name = "FK_followed")
+    )
+    private AccountEntity followed;
 }

@@ -10,7 +10,7 @@ import lombok.NoArgsConstructor;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class AccountCreationRequest {
+public class UserMessageDto {
     @JsonProperty("user_id")
     private Long userId;
     private String email;

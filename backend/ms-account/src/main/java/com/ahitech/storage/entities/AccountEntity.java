@@ -4,7 +4,9 @@ import com.ahitech.storage.enums.Country;
 import jakarta.persistence.*;
 import lombok.*;
 
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
 
 @Entity
 @Setter
@@ -62,4 +64,10 @@ public class AccountEntity {
 
     @Column(length = 75)
     private String website;
+
+    @OneToMany(mappedBy = "follower", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<SubscriptionEntity> followers = new ArrayList<>();
+
+    @OneToMany(mappedBy = "followed", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<SubscriptionEntity> following = new ArrayList<>();
 }

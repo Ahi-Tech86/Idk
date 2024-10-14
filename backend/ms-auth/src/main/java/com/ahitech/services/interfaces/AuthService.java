@@ -9,6 +9,6 @@ import java.util.List;
 
 public interface AuthService {
     String register(SignUpRequest signUpRequest);
-    UserDto activate(ActivateUserRequest activateUserRequest);
+    List<Object> activate(ActivateUserRequest activateUserRequest);
     List<Object> login(SignInRequest signInRequest);
 }
