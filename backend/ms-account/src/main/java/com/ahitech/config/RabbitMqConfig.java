@@ -11,8 +11,13 @@ import org.springframework.context.annotation.Configuration;
 public class RabbitMqConfig {
 
     @Bean
-    public Queue queue() {
+    public Queue accountCreationQueue() {
         return new Queue("account_creation_queue", true);
+    }
+
+    @Bean
+    public Queue accountFullnameUpdateQueue() {
+        return new Queue("account_fullname_update_queue", true);
     }
 
     @Bean
@@ -21,7 +26,14 @@ public class RabbitMqConfig {
     }
 
     @Bean
-    public Binding binding(Queue queue, DirectExchange exchange) {
-        return BindingBuilder.bind(queue).to(exchange).with("account.routing.key");
+    public Binding bindingAccountCreation(Queue accountCreationQueue, DirectExchange exchange) {
+        return BindingBuilder.bind(accountCreationQueue)
+                .to(exchange).with("account.routing.key");
+    }
+
+    @Bean
+    public Binding bindingUserUpdate(Queue accountFullnameUpdateQueue, DirectExchange exchange) {
+        return BindingBuilder.bind(accountFullnameUpdateQueue)
+                .to(exchange).with("account.data.update.routing.key");
     }
 }

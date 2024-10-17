@@ -101,4 +101,23 @@ public class AccountController {
 
         return ResponseEntity.ok(service.updateWebsite(nickname, requestBody));
     }
+
+    @PostMapping("/updateFullname")
+    @Operation(
+            summary = "Update account fullname",
+            description = "Update account fullname and update fullname in auth microservice",
+            responses = {
+                    @ApiResponse(responseCode = "200", description = "Successful account fullname update"),
+                    @ApiResponse(responseCode = "400", description = "Invalid request data"),
+                    @ApiResponse(responseCode = "500", description = "Error while serializing message")
+            }
+    )
+    public ResponseEntity<AccountDto> updateFullname(
+            @CookieValue(value = "accessToken") String token,
+            @RequestBody UpdateAccountFullnameRequest requestBody
+    ) {
+        String nickname = jwtService.extractEmailFromAccessToken(token);
+
+        return ResponseEntity.ok(service.updateFullname(nickname, requestBody));
+    }
 }

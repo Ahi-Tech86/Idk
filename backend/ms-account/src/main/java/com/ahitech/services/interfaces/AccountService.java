@@ -9,4 +9,5 @@ public interface AccountService {
     AccountDto updatePrivacy(String nickname, UpdateAccountPrivacyRequest request);
     AccountDto updateCountry(String nickname, UpdateAccountCountryRequest request);
     AccountDto updateWebsite(String nickname, UpdateAccountWebsiteRequest request);
+    AccountDto updateFullname(String nickname, UpdateAccountFullnameRequest request);
 }

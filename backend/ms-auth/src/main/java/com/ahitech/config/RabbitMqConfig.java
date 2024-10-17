@@ -16,6 +16,11 @@ public class RabbitMqConfig {
     }
 
     @Bean
+    public Queue queueUserUpdate() {
+        return new Queue("account_fullname_update_queue", true);
+    }
+
+    @Bean
     public DirectExchange exchange() {
         return new DirectExchange("account_exchange");
     }
@@ -23,5 +28,10 @@ public class RabbitMqConfig {
     @Bean
     public Binding binding(Queue queue, DirectExchange exchange) {
         return BindingBuilder.bind(queue).to(exchange).with("account.routing.key");
+    }
+
+    @Bean
+    public Binding bindingUserUpdate(Queue queue, DirectExchange exchange) {
+        return BindingBuilder.bind(queue).to(exchange).with("account.data.update.routing.key");
     }
 }

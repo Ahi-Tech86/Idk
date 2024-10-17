@@ -24,6 +24,7 @@ public class AccountServiceImpl implements AccountService {
     private final AccountRepository repository;
     private final AccountEntityFactory factory;
     private final AccountDtoFactory dtoFactory;
+    private final AccountDataSenderImpl senderService;
 
     @Override
     @Transactional
@@ -158,6 +159,35 @@ public class AccountServiceImpl implements AccountService {
 
         AccountEntity savedAccount = repository.saveAndFlush(account);
         log.info("Successfully website name update for user with nickname {}", nickname);
+
+        return dtoFactory.makeAccountDto(savedAccount);
+    }
+
+    @Override
+    @Transactional
+    public AccountDto updateFullname(String nickname, UpdateAccountFullnameRequest request) {
+        String firstname = request.getFirstname();
+        String lastname = request.getLastname();
+
+        AccountEntity account = isAccountExistsByNickname(nickname);
+
+        if (firstname != null) {
+            account.setFirstname(firstname);
+        }
+
+        if (lastname != null) {
+            account.setLastname(lastname);
+        }
+
+        if (firstname == null && lastname == null) {
+            log.error("Attempt to update account fullname with nullable firstname value {} and lastname value {}", firstname, lastname);
+            throw new AppException("Fullname cannot be null", HttpStatus.BAD_REQUEST);
+        }
+
+        AccountEntity savedAccount = repository.saveAndFlush(account);
+        log.info("Successfully fullname update for user with nickname {}", nickname);
+
+        senderService.sendMessage(nickname, request);
 
         return dtoFactory.makeAccountDto(savedAccount);
     }
