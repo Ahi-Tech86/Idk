@@ -5,6 +5,7 @@ import com.ahitech.services.AccountServiceImpl;
 import com.ahitech.services.JwtServiceImpl;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import jakarta.ws.rs.Path;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -119,5 +120,15 @@ public class AccountController {
         String nickname = jwtService.extractEmailFromAccessToken(token);
 
         return ResponseEntity.ok(service.updateFullname(nickname, requestBody));
+    }
+
+    @GetMapping("/{userId}")
+    public ResponseEntity<AccountRepresentation> getAccount(
+            @PathVariable("userId") Long userId,
+            @CookieValue(value = "accessToken") String token
+    ) {
+        Long id = jwtService.extractUserIdFromAccessToken(token);
+
+        return ResponseEntity.ok(service.getAccount(userId, id));
     }
 }

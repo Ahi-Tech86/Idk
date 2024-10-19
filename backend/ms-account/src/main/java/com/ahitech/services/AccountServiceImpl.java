@@ -4,6 +4,8 @@ import com.ahitech.dtos.*;
 import com.ahitech.exception.AppException;
 import com.ahitech.factories.AccountDtoFactory;
 import com.ahitech.factories.AccountEntityFactory;
+import com.ahitech.factories.PrivateAccountDtoFactory;
+import com.ahitech.factories.PublicAccountDtoFactory;
 import com.ahitech.services.interfaces.AccountService;
 import com.ahitech.storage.entities.AccountEntity;
 import com.ahitech.storage.enums.Country;
@@ -25,6 +27,25 @@ public class AccountServiceImpl implements AccountService {
     private final AccountEntityFactory factory;
     private final AccountDtoFactory dtoFactory;
     private final AccountDataSenderImpl senderService;
+    private final PublicAccountDtoFactory publicAccountDtoFactory;
+    private final PrivateAccountDtoFactory privateAccountDtoFactory;
+
+    @Override
+    public AccountRepresentation getAccount(Long userId, Long requesterId) {
+        if (userId.equals(requesterId)) {
+            AccountEntity account = isAccountExistsByUserId(userId);
+
+            return publicAccountDtoFactory.makeAccountDto(account);
+        }
+
+        AccountEntity account = isAccountExistsByUserId(userId);
+
+        if (account.isPrivate()) {
+            return privateAccountDtoFactory.makePrivateAccountDto(account);
+        } else {
+            return publicAccountDtoFactory.makeAccountDto(account);
+        }
+    }
 
     @Override
     @Transactional
@@ -192,6 +213,19 @@ public class AccountServiceImpl implements AccountService {
         return dtoFactory.makeAccountDto(savedAccount);
     }
 
+    private AccountEntity isAccountExistsByUserId(Long userId) {
+        Optional<AccountEntity> optionalAccount = repository.findByUserId(userId);
+
+        if (optionalAccount.isEmpty()) {
+            log.error("An attempt to perform any actions with a non-existent userId: {}", userId);
+            throw new AppException(
+                    String.format("Account with %s userId doesn't exists", userId), HttpStatus.BAD_REQUEST
+            );
+        } else {
+            return optionalAccount.get();
+        }
+    }
+
     private AccountEntity isAccountExistsByNickname(String nickname) {
         Optional<AccountEntity> optionalAccount = repository.findByNickname(nickname);
 
@@ -211,11 +245,6 @@ public class AccountServiceImpl implements AccountService {
         String nickname = request.getNickname();
         String firstname = request.getFirstname();
         String lastname = request.getLastname();
-
-        if (request == null) {
-            log.error("Request data was lost");
-            throw new AppException("Request data was lost", HttpStatus.BAD_REQUEST);
-        }
 
         if (userId == null || userId == 0) {
             log.error("The request contained an zero or nullable userId: {}", userId);
